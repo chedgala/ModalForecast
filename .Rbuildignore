@@ -1,0 +1,12 @@
+^ModalForecast\.Rproj$
+^\.Rproj\.user$
+^\.Rhistory$
+^\.github$
+^ModalForecast\.code-workspace$
+^CITATION\.md$
+^CONTRIBUTE\.md$
+^SUPPORT\.md$
+^DISCLAIMER$
+^_config\.yml$
+^_pkgdown\.yml$
+^.*\.Rdata$

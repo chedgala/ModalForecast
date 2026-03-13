@@ -1,0 +1,25 @@
+Package: ModalForecast
+Title: Parametric Modal ARIMA Models using Skew Normal Distribution
+Version: 0.1.0
+Authors@R: person("Christian", "Galarza", email = "chedgala@espol.edu.ec", role = c("aut", "cre"))
+Description: Implements parametric modal ARIMA models utilizing the Skew Normal (Two-Piece Normal) distribution. The conditional mode is parameterized and optimized via maximum likelihood, with easy parameter recovery and simulation capabilities.
+URL: https://github.com/chedgala/ModalForecast
+BugReports: https://github.com/chedgala/ModalForecast/issues
+Depends: R (>= 3.5.0)
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.3
+Imports:
+    stats,
+    graphics,
+    forecast,
+    ggplot2,
+    gridExtra,
+    scales,
+    grid
+Suggests: 
+    rmarkdown,
+    testthat (>= 3.0.0),
+    knitr
+Config/testthat/edition: 3
