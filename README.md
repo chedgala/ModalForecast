@@ -18,7 +18,15 @@ $$y_t \sim \text{SN}(\mu_t, \sigma, \gamma)$$
 
 The probability density function is given by:
 
-$$ f(y_t | \mu_t, \sigma, \gamma) = \frac{2}{\sigma(\gamma + 1/\gamma)} \begin{cases} \phi\left(\frac{y_t - \mu_t}{\sigma \gamma}\right) & \text{if } y_t \ge \mu_t \\ \phi\left( \frac{y_t - \mu_t}{\sigma / \gamma} \right) & \text{if } y_t < \mu_t \end{cases} $$
+$$
+f(y_t \mid \mu_t,\sigma,\gamma)
+=
+\frac{2}{\sigma(\gamma + 1/\gamma)}
+\begin{aligned}
+&\phi\!\left(\frac{y_t-\mu_t}{\sigma\gamma}\right) && \text{if } y_t \ge \mu_t \\
+&\phi\!\left(\frac{y_t-\mu_t}{\sigma/\gamma}\right) && \text{if } y_t < \mu_t
+\end{aligned}
+$$
 
 where $\phi(\cdot)$ is the probability density function of the standard normal distribution. A crucial property of this parameterization is that the density reaches its maximum exactly at $y_t = \mu_t$. Consequently, $\mu_t$ represents the conditional mode of the distribution.
 
@@ -51,7 +59,7 @@ The `diagnostics()` function provides a comprehensive panel including fitted mod
 ### Out-of-Sample Forecasting
 Comparison between traditional Gaussian ARIMA (Mean) and the Skew-Normal Modal ARIMA (Mode).
 
-![Modal Forecast Comparison](man/figures/application_forecast.png)
+![Modal Forecast Comparison](man/figures/application_forecast.jpg)
 
 ## Quick Start Tutorial
 
