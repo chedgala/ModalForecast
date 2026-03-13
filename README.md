@@ -19,13 +19,7 @@ $$y_t \sim \text{SN}(\mu_t, \sigma, \gamma)$$
 The probability density function is given by:
 
 $$
-f(y_t \mid \mu_t,\sigma,\gamma)
-=
-\frac{2}{\sigma(\gamma + 1/\gamma)}
-\begin{aligned}
-&\phi\!\left(\frac{y_t-\mu_t}{\sigma\gamma}\right) && \text{if } y_t \ge \mu_t \\
-&\phi\!\left(\frac{y_t-\mu_t}{\sigma/\gamma}\right) && \text{if } y_t < \mu_t
-\end{aligned}
+f(y_t | \mu_t, \sigma, \gamma) = \frac{2}{\sigma(\gamma + 1/\gamma)} \left\lbrace \begin{array}{ll} \phi\left(\frac{y_t - \mu_t}{\sigma \gamma}\right) & \text{if } y_t \ge \mu_t \\\\ \phi\left( \frac{y_t - \mu_t}{\sigma / \gamma} \right) & \text{if } y_t < \mu_t \end{array} \right.
 $$
 
 where $\phi(\cdot)$ is the probability density function of the standard normal distribution. A crucial property of this parameterization is that the density reaches its maximum exactly at $y_t = \mu_t$. Consequently, $\mu_t$ represents the conditional mode of the distribution.
@@ -54,12 +48,16 @@ The following plots demonstrate the diagnostic capabilities and forecasting perf
 ### Package Diagnostics
 The `diagnostics()` function provides a comprehensive panel including fitted modes, ACF/PACF of Randomized Quantile Residuals (RQR), and normality checks.
 
-![Modal Forecast Diagnostics](man/figures/diagnostics_lynx.png)
+<div align="center">
+  <img src="man/figures/diagnostics_lynx.png" alt="Modal Forecast Diagnostics" width="70%">
+</div>
 
 ### Out-of-Sample Forecasting
 Comparison between traditional Gaussian ARIMA (Mean) and the Skew-Normal Modal ARIMA (Mode).
 
-![Modal Forecast Comparison](man/figures/application_forecast.jpg)
+<div align="center">
+  <img src="man/figures/application_forecast.jpg" alt="Modal Forecast Comparison" width="70%">
+</div>
 
 ## Quick Start Tutorial
 
