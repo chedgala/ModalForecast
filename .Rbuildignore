@@ -10,3 +10,5 @@
 ^_config\.yml$
 ^_pkgdown\.yml$
 ^.*\.Rdata$
+^pruebas$
+^to-do.txt$

@@ -2,18 +2,18 @@
 % Please edit documentation in R/diagnostics.R
 \name{residuals.modal_arima}
 \alias{residuals.modal_arima}
-\title{Residuals method for Modal ARIMA models}
+\title{Extract Residuals from Modal ARIMA models}
 \usage{
 \method{residuals}{modal_arima}(object, ...)
 }
 \arguments{
-\item{object}{an object of class \code{modal_arima}}
+\item{object}{An object of class \code{modal_arima}.}
 
-\item{...}{additional arguments}
+\item{...}{Additional arguments.}
 }
 \value{
-numeric vector of residuals
+A numeric vector of residuals.
 }
 \description{
-Residuals method for Modal ARIMA models
+Extract Residuals from Modal ARIMA models
 }

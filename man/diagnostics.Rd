@@ -2,20 +2,49 @@
 % Please edit documentation in R/diagnostics.R
 \name{diagnostics}
 \alias{diagnostics}
+\alias{diagnostics.modal_arima}
 \title{Diagnostic Plots for Modal ARIMA Models}
 \usage{
 diagnostics(object, ...)
+
+\method{diagnostics}{modal_arima}(object, ...)
 }
 \arguments{
-\item{object}{An object of class \code{modal_arima}}
+\item{object}{An object of class \code{modal_arima}.}
 
-\item{...}{Additional arguments (unused)}
+\item{...}{Additional arguments (unused).}
 }
 \value{
 A list of ggplot objects (invisibly) and draws the panel.
 }
 \description{
+Provides visual and statistical diagnostics for the residuals of a fitted modal ARIMA model.
 Produces a comprehensive diagnostic panel including time series plot with
 fitted modes, ACF/PACF of residuals, QQ-plot for normality, histogram of
 residuals, and Ljung-Box p-values, all implemented using ggplot2.
+}
+\examples{
+\donttest{
+# 1. Simulate an asymmetric AR(1) time series
+set.seed(123)
+y <- arima.sim(n = 200, list(ar = 0.5))
+
+# 2. Fit a Modal ARIMA model
+mod <- fit_modal_arima(y, order = c(1, 0, 0))
+
+# 3. Model Information and AIC/BIC
+summary(mod)
+AIC(mod)
+BIC(mod)
+
+# 4. Run residual diagnostics with hypothesis tests
+diagnostics(mod)
+
+# 5. Produce forecasts with Asymptotic & Bootstrap prediction bands
+pred_asymp <- forecast(mod, h = 10, level = c(80, 95), interval = "asymptotic")
+pred_boot <- forecast(mod, h = 10, level = c(80, 95), interval = "bootstrap", npaths = 500)
+
+# The output contains the upper and lower bounds for the respective levels:
+print(pred_asymp$lower)
+}
 }

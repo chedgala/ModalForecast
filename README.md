@@ -45,15 +45,17 @@ devtools::install_github("chedgala/ModalForecast")
 
 The following plots demonstrate the diagnostic capabilities and forecasting performance of the `ModalForecast` package using the well-known `lynx` dataset.
 
-### Package Diagnostics
-The `diagnostics()` function provides a comprehensive panel including fitted modes, ACF/PACF of Randomized Quantile Residuals (RQR), and normality checks.
+### Package Diagnostics & Inference
+The `diagnostics()` function provides a comprehensive panel including fitted modes, ACF/PACF of Randomized Quantile Residuals (RQR), and normality/symmetry checks. It actively prints plain-English, hypothesis-aware interpretations of standard diagnostic test p-values (e.g., Shapiro-Wilk, Ljung-Box).
+
+The analytical Fisher Information matrix handles the `summary()` method, outputting Standard Errors and $z$-tests directly from the objective function's Hessian.
 
 <div align="center">
   <img src="man/figures/diagnostics_lynx.png" alt="Modal Forecast Diagnostics" width="70%">
 </div>
 
 ### Out-of-Sample Forecasting
-Comparison between traditional Gaussian ARIMA (Mean) and the Skew-Normal Modal ARIMA (Mode).
+Comparison between traditional Gaussian ARIMA (Mean) and the Skew-Normal Modal ARIMA (Mode). The package computes both **Asymptotic** prediction intervals for standard series, and **Parametric Bootstrap** simulated prediction intervals for greater coverage in small sample settings.
 
 <div align="center">
   <img src="man/figures/application_forecast.jpg" alt="Modal Forecast Comparison" width="70%">
@@ -75,7 +77,7 @@ fit_manual <- fit_modal_arima(y, order=c(2, 0, 0))
 
 # Or, use the rigorous Auto Modal ARIMA selector (searches grid p, q recursively):
 # This will minimize AIC and automatically estimate d if needed.
-fit_auto <- auto.modal.arima(y, d=0, max.p=5, max.q=5)
+fit_auto <- auto.modal_arima(y, d=0, max.p=5, max.q=5)
 
 # Print the automatically fitted modal model
 print(fit_auto)

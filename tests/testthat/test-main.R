@@ -1,7 +1,7 @@
-test_that("auto.modal.arima works", {
+test_that("auto.modal_arima works", {
   set.seed(123)
   y <- stats::arima.sim(n = 50, list(ar = 0.5)) + 10
-  fit <- auto.modal.arima(as.numeric(y), max.p = 1, max.q = 0)
+  fit <- auto.modal_arima(as.numeric(y), max.p = 1, max.q = 0)
   expect_s3_class(fit, "modal_arima")
   expect_true(fit$convergence == 0)
 })

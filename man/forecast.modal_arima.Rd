@@ -4,12 +4,25 @@
 \alias{forecast.modal_arima}
 \title{Forecast methodology for Modal ARIMA}
 \usage{
-\method{forecast}{modal_arima}(object, h = 10, ...)
+\method{forecast}{modal_arima}(
+  object,
+  h = 10,
+  level = c(80, 95),
+  interval = c("asymptotic", "bootstrap"),
+  npaths = 1000,
+  ...
+)
 }
 \arguments{
 \item{object}{A modal_arima object.}
 
 \item{h}{The forecast horizon.}
+
+\item{level}{Confidence level for prediction intervals.}
+
+\item{interval}{Method for computing prediction intervals ("asymptotic" or "bootstrap"). Defaults to "asymptotic".}
+
+\item{npaths}{Number of simulated paths for bootstrap intervals. Defaults to 1000.}
 
 \item{...}{Additional arguments.}
 }
@@ -18,4 +31,27 @@ A forecast object.
 }
 \description{
 Forecast methodology for Modal ARIMA
+}
+\examples{
+# 1. Simulate an asymmetric AR(1) time series
+set.seed(123)
+y <- arima.sim(n = 200, list(ar = 0.5))
+
+# 2. Fit a Modal ARIMA model
+mod <- fit_modal_arima(y, order = c(1, 0, 0))
+
+# 3. Model Information and AIC/BIC
+summary(mod)
+AIC(mod)
+BIC(mod)
+
+# 4. Run residual diagnostics with hypothesis tests
+diagnostics(mod)
+
+# 5. Produce forecasts with Asymptotic & Bootstrap prediction bands
+pred_asymp <- forecast(mod, h = 10, level = c(80, 95), interval = "asymptotic")
+pred_boot <- forecast(mod, h = 10, level = c(80, 95), interval = "bootstrap", npaths = 500)
+
+# The output contains the upper and lower bounds for the respective levels:
+print(pred_asymp$lower)
 }
