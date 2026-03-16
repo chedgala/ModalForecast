@@ -12,17 +12,11 @@ By modeling the mode directly, this framework helps mitigate the effects of loca
 ### The Skewed Distribution (SKD) Family
 To construct a modal regression model, we require a flexible parametric continuous distribution where the mode is explicitly parameterized and differentiable. We adopt the generalized SKD family, which supports robust inference through heavy tails and asymmetry. The package currently implements the Skew-Normal, Skewed Student-t, and Skewed Laplace distributions.
 
-Let $y_t \in \mathbb{R}$ be the response variable at time $t$. We assume $y_t$ follows a skew-normal distribution with mode $\mu_t$, scale $\sigma$, and skewness parameter $\gamma$:
+Let $y_t \in \mathbb{R}$ be the response variable at time $t$. We assume $y_t$ follows a distribution from the SKD family with mode $\mu_t$, scale $\sigma$, skewness parameter $\gamma \in (0,\infty)$ (or effectively $p \in (0,1)$), and tail parameter(s) $\boldsymbol{\nu}$:
 
-$$y_t \sim \text{SN}(\mu_t, \sigma, \gamma)$$
+$$y_t \sim \text{SKD}(\mu_t, \sigma, \gamma, \boldsymbol{\nu})$$
 
-The probability density function is given by:
-
-$$
-f(y_t | \mu_t, \sigma, \gamma) = \frac{2}{\sigma(\gamma + 1/\gamma)} \left\lbrace \begin{array}{ll} \phi\left(\frac{y_t - \mu_t}{\sigma \gamma}\right) & \text{if } y_t \ge \mu_t \\\\ \phi\left( \frac{y_t - \mu_t}{\sigma / \gamma} \right) & \text{if } y_t < \mu_t \end{array} \right.
-$$
-
-where $\phi(\cdot)$ is the probability density function of the standard normal distribution. A crucial property of this parameterization is that the density reaches its maximum exactly at $y_t = \mu_t$. Consequently, $\mu_t$ represents the conditional mode of the distribution.
+The family is constructed using a scale mixture representation that ensures mathematical tractability while allowing heavy tails. A crucial property of this parameterization is that the probability density function reaches its global maximum exactly at $y_t = \mu_t$. Consequently, $\mu_t$ represents the true conditional mode of the distribution.
 
 ### Systematic Component: Modal ARIMA
 
@@ -45,14 +39,16 @@ devtools::install_github("chedgala/ModalForecast")
 
 The following plots demonstrate the diagnostic capabilities and forecasting performance of the `ModalForecast` package using the well-known `lynx` dataset.
 
-### Package Diagnostics & Inference
-The `diagnostics()` function provides a comprehensive panel including fitted modes, ACF/PACF of Randomized Quantile Residuals (RQR), and normality/symmetry checks. It actively prints plain-English, hypothesis-aware interpretations of standard diagnostic test p-values (e.g., Shapiro-Wilk, Ljung-Box).
+### Diagnostic Envelopes and Inference
+The `envelope()` function constructs simulation envelopes based on the exact theoretical distance distributions of the SKD family (e.g., half-normal, half-t, exponential). This provides a visually intuitive goodness-of-fit assessment to help select the best distribution among `normal`, `t`, or `laplace`. 
 
-The analytical Fisher Information matrix handles the `summary()` method, outputting Standard Errors and $z$-tests directly from the objective function's Hessian.
+Below is an evaluation of the Skew-Normal, Skewed Student-t, and Skewed Laplace fits on the `lynx` dataset:
 
 <div align="center">
-  <img src="man/figures/diagnostics_lynx.png" alt="Modal Forecast Diagnostics" width="70%">
+  <img src="man/figures/diagnostics_lynx.png" alt="Diagnostic Envelopes" width="100%">
 </div>
+
+The `diagnostics()` function provides additional analysis including ACF/PACF of Randomized Quantile Residuals (RQR), and the `summary()` method handles analytical Fisher Information matrix standard errors.
 
 ### Out-of-Sample Forecasting
 Comparison between traditional Gaussian ARIMA (Mean) and the Modal ARIMA (Mode) utilizing different members of the SKD family. The package computes both **Asymptotic** prediction intervals for standard series, and **Parametric Bootstrap** simulated prediction intervals for greater coverage in small sample settings.
@@ -92,4 +88,8 @@ pred <- forecast(fit_auto, h=10)
 plot(pred)
 ```
 
-The fitted object returns standard coefficients, scale `sigma`, and skewness `gamma`. If `gamma` is significantly different from 1, it indicates positive asymmetry (right-skewness if $>1$) or negative asymmetry ($<1$), capturing patterns that typical least-squares ARIMA would miss.
+The fitted object returns standard coefficients, scale `sigma`, and skewness `gamma`. If `gamma` is significantly different from 1, it indicates positive asymmetry (right-skewness if $>1$) or negative asymmetry ($<1$), capturing patterns that typical least-squares ARIMA would miss. If the specified distribution possesses additional tail parameters (like `nu` for Skewed Student-t), they are estimated automatically.
+
+## References
+
+* Galarza, C. E., Lachos, V. H., Cabral, C. R. B., & Castro, L. M. (2017). Robust quantile regression using a generalized class of skewed distributions. *Stat*, 6(1), 113-130. https://doi.org/10.1002/sta4.140
