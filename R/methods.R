@@ -1,6 +1,7 @@
 #' @export
 print.modal_arima <- function(x, ...) {
-  cat("\nCall:\nfit_modal_arima(order = c(", paste(x$order, collapse=", "), "))\n")
+  dist <- if (!is.null(x$dist)) x$dist else "normal"
+  cat("\nCall:\nfit_modal_arima(order = c(", paste(x$order, collapse=", "), "), dist = \"", dist, "\")\n", sep="")
   cat("\nCoefficients:\n")
   print(x$coefficients)
   cat("\nLog-likelihood:", round(x$loglik, 2), "\n")
@@ -29,14 +30,17 @@ BIC.modal_arima <- function(object, ...) {
 
 #' @export
 summary.modal_arima <- function(object, ...) {
+  dist <- if (!is.null(object$dist)) object$dist else "normal"
+
   # Simple asymptotic standard errors from hessian
   se <- tryCatch(sqrt(diag(solve(object$hessian))), error = function(e) rep(NA, length(object$coefficients)))
   z <- object$coefficients / se
   pval <- 2 * (1 - pnorm(abs(z)))
-  
+
   res <- cbind(Estimate = object$coefficients, `Std. Error` = se, `z value` = z, `Pr(>|z|)` = pval)
-  
-  cat("\nModal ARIMA(", paste(object$order, collapse=","), ") Model\n")
+
+  dist_label <- switch(dist, "normal"="Skew-Normal", "t"="Skewed Student-t", "laplace"="Skewed Laplace")
+  cat("\nModal ARIMA(", paste(object$order, collapse=","), ") Model [", dist_label, "]\n", sep="")
   cat("====================================================\n")
   printCoefmat(res)
   cat("---\n")
@@ -46,10 +50,11 @@ summary.modal_arima <- function(object, ...) {
 #' @export
 plot.modal_arima <- function(x, ...) {
   Time <- Value <- NULL # Hack for ggplot2 notes
+  dist <- if (!is.null(x$dist)) x$dist else "SKN"
   df <- data.frame(Time = 1:length(x$y), Value = as.numeric(x$y))
   p <- ggplot2::ggplot(df, ggplot2::aes(x = Time, y = Value)) +
     ggplot2::geom_line(color = "gray40") +
-    ggplot2::labs(title = paste0("Modal ARIMA(", paste(x$order, collapse=","), ") Fit"),
+    ggplot2::labs(title = paste0("Modal ARIMA(", paste(x$order, collapse=","), ") [", dist, "] Fit"),
                   x = "Time", y = "Value") +
     ggplot2::theme_minimal()
   print(p)

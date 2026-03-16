@@ -2,24 +2,38 @@
 % Please edit documentation in R/modal_arima.R
 \name{fit_modal_arima}
 \alias{fit_modal_arima}
-\title{Fit a Parametric Modal ARIMA Model using the Skew Normal Distribution}
+\title{Fit a Parametric Modal ARIMA Model using the SKD Family}
 \usage{
-fit_modal_arima(y, order = c(1, 0, 0))
+fit_modal_arima(y, order = c(1, 0, 0), dist = c("normal", "t", "laplace"))
 }
 \arguments{
-\item{y}{numeric vector or time series of observations}
+\item{y}{numeric vector or time series of observations.}
 
 \item{order}{A specification of the non-seasonal part of the ARIMA
 model: the three components (p, d, q) are the AR order, the
 degree of differencing, and the MA order.}
+
+\item{dist}{Character string specifying the error distribution from the
+SKD family. One of \code{"normal"} (default) for the Skew-Normal,
+\code{"t"} for the Skewed Student-t (adds degrees-of-freedom parameter
+\code{nu}), or \code{"laplace"} for the Skewed Laplace distribution.}
 }
 \value{
-An object of class \code{modal_arima}.
+An object of class \code{modal_arima} containing:
+  \describe{
+    \item{\code{y}}{The original time series.}
+    \item{\code{order}}{The ARIMA order \code{(p,d,q)}.}
+    \item{\code{coefficients}}{Named vector of estimated parameters.}
+    \item{\code{loglik}}{The maximized log-likelihood.}
+    \item{\code{hessian}}{The Hessian matrix at the optimum.}
+    \item{\code{convergence}}{Convergence code from \code{optim}.}
+    \item{\code{dist}}{The distribution used (\code{"normal"}, \code{"t"}, or \code{"laplace"}).}
+  }
 }
 \description{
-This framework is based on the Fernandez-Steel (1998) skew-normal
-distribution, which allows for a flexible error structure where the
-mode is explicitly modeled.
+Fits a Modal ARIMA model where the conditional mode follows an ARIMA recursion
+and the innovations follow a member of the SKD (Skewed Distribution) family.
+Supports the Skew-Normal, Skewed Student-t, and Skewed Laplace distributions.
 }
 \note{
 GitHub repository: \url{https://github.com/chedgala/ModalForecast}
@@ -29,27 +43,28 @@ GitHub repository: \url{https://github.com/chedgala/ModalForecast}
 set.seed(123)
 y <- arima.sim(n = 200, list(ar = 0.5))
 
-# 2. Fit a Modal ARIMA model
-mod <- fit_modal_arima(y, order = c(1, 0, 0))
+# 2. Fit with Skew-Normal (default), Skewed Student-t, and Skewed Laplace
+mod_n <- fit_modal_arima(y, order = c(1, 0, 0), dist = "normal")
+mod_t <- fit_modal_arima(y, order = c(1, 0, 0), dist = "t")
+mod_l <- fit_modal_arima(y, order = c(1, 0, 0), dist = "laplace")
 
-# 3. Model Information and AIC/BIC
-summary(mod)
-AIC(mod)
-BIC(mod)
+# 3. Compare models
+AIC(mod_n); AIC(mod_t); AIC(mod_l)
 
-# 4. Run residual diagnostics with hypothesis tests
-diagnostics(mod)
+# 4. Run residual diagnostics
+diagnostics(mod_n)
 
-# 5. Produce forecasts with Asymptotic & Bootstrap prediction bands
-pred_asymp <- forecast(mod, h = 10, level = c(80, 95), interval = "asymptotic")
-pred_boot <- forecast(mod, h = 10, level = c(80, 95), interval = "bootstrap", npaths = 500)
-
-# The output contains the upper and lower bounds for the respective levels:
-print(pred_asymp$lower)
+# 5. Produce forecasts with prediction bands
+pred <- forecast(mod_n, h = 10, level = c(80, 95), interval = "asymptotic")
+print(pred$lower)
 }
 \references{
 Fernandez, C. and Steel, M. F. J. (1998). On Bayesian Modeling of Fat Tails
 and Skewness. Journal of the American Statistical Association, 93(441), 359-371.
+
+Galarza, C. E., Lachos, V. H., Cabral, C. R. B., and Castro, L. M. (2017).
+Robust quantile regression using a generalized class of skewed distributions.
+Stat, 6(1), 113-130.
 }
 \seealso{
 \code{\link{auto.modal_arima}}

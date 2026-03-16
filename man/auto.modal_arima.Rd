@@ -4,7 +4,14 @@
 \alias{auto.modal_arima}
 \title{Automatic selection of Parametric Modal ARIMA model}
 \usage{
-auto.modal_arima(y, d = NA, max.p = 5, max.q = 5, ic = c("aic", "bic"))
+auto.modal_arima(
+  y,
+  d = NA,
+  max.p = 5,
+  max.q = 5,
+  ic = c("aic", "bic"),
+  dist = c("normal", "t", "laplace")
+)
 }
 \arguments{
 \item{y}{numeric vector or time series of observations}
@@ -16,6 +23,10 @@ auto.modal_arima(y, d = NA, max.p = 5, max.q = 5, ic = c("aic", "bic"))
 \item{max.q}{Maximum MA order}
 
 \item{ic}{Information criterion to be used in model selection ("aic", "bic")}
+
+\item{dist}{Character string specifying the error distribution.
+\code{"normal"} (default) for Skew-Normal, \code{"t"} for Skewed Student-t,
+\code{"laplace"} for Skewed Laplace.}
 }
 \value{
 An object of class \code{modal_arima}.
@@ -36,28 +47,31 @@ GitHub repository: \url{https://github.com/chedgala/ModalForecast}
 set.seed(123)
 y <- arima.sim(n = 200, list(ar = 0.5))
 
-# 2. Fit a Modal ARIMA model
-mod <- fit_modal_arima(y, order = c(1, 0, 0))
+# 2. Fit Modal ARIMA models with different distributions
+mod_n <- fit_modal_arima(y, order = c(1, 0, 0), dist = "normal")
+mod_t <- fit_modal_arima(y, order = c(1, 0, 0), dist = "t")
+mod_l <- fit_modal_arima(y, order = c(1, 0, 0), dist = "laplace")
 
-# 3. Model Information and AIC/BIC
-summary(mod)
-AIC(mod)
-BIC(mod)
+# 3. Compare models
+summary(mod_n)
+summary(mod_l)
+AIC(mod_n); AIC(mod_t); AIC(mod_l)
 
-# 4. Run residual diagnostics with hypothesis tests
-diagnostics(mod)
+# 4. Run residual diagnostics
+diagnostics(mod_n)
 
-# 5. Produce forecasts with Asymptotic & Bootstrap prediction bands
-pred_asymp <- forecast(mod, h = 10, level = c(80, 95), interval = "asymptotic")
-pred_boot <- forecast(mod, h = 10, level = c(80, 95), interval = "bootstrap", npaths = 500)
-
-# The output contains the upper and lower bounds for the respective levels:
-print(pred_asymp$lower)
+# 5. Produce forecasts with prediction bands
+pred <- forecast(mod_n, h = 10, level = c(80, 95), interval = "asymptotic")
+print(pred$lower)
 }
 }
 \references{
 Fernandez, C. and Steel, M. F. J. (1998). On Bayesian Modeling of Fat Tails
 and Skewness. Journal of the American Statistical Association, 93(441), 359-371.
+
+Galarza, C. E., Lachos, V. H., Cabral, C. R. B., and Castro, L. M. (2017).
+Robust quantile regression using a generalized class of skewed distributions.
+Stat, 6(1), 113-130.
 }
 \seealso{
 \code{\link{fit_modal_arima}}

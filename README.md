@@ -3,14 +3,14 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The `ModalForecast` package implements parametric modal ARIMA models utilizing the Skew Normal (Two-Piece Normal) distribution. Instead of connecting the expected value (mean) to covariates, the model connects the **conditional mode** to the systematic autoregressive integrated moving average (ARIMA) components. 
+The `ModalForecast` package implements parametric modal ARIMA models utilizing the Skewed Distribution (SKD) family. Instead of connecting the expected value (mean) to covariates, the model connects the **conditional mode** to the systematic autoregressive integrated moving average (ARIMA) components. 
 
 By modeling the mode directly, this framework helps mitigate the effects of localized extremes, asymmetry, and non-normal behavior, providing robust centralized predictions under asymmetric error distributions.
 
 ## Methodology
 
-### The Skew Normal (Two-Piece Normal) Distribution
-To construct a modal regression model, we require a flexible parametric continuous distribution where the mode is explicitly parameterized and differentiable. We adopt the Fernandez-Steel formulation of the asymmetric (skew) normal distribution.
+### The Skewed Distribution (SKD) Family
+To construct a modal regression model, we require a flexible parametric continuous distribution where the mode is explicitly parameterized and differentiable. We adopt the generalized SKD family, which supports robust inference through heavy tails and asymmetry. The package currently implements the Skew-Normal, Skewed Student-t, and Skewed Laplace distributions.
 
 Let $y_t \in \mathbb{R}$ be the response variable at time $t$. We assume $y_t$ follows a skew-normal distribution with mode $\mu_t$, scale $\sigma$, and skewness parameter $\gamma$:
 
@@ -55,7 +55,7 @@ The analytical Fisher Information matrix handles the `summary()` method, outputt
 </div>
 
 ### Out-of-Sample Forecasting
-Comparison between traditional Gaussian ARIMA (Mean) and the Skew-Normal Modal ARIMA (Mode). The package computes both **Asymptotic** prediction intervals for standard series, and **Parametric Bootstrap** simulated prediction intervals for greater coverage in small sample settings.
+Comparison between traditional Gaussian ARIMA (Mean) and the Modal ARIMA (Mode) utilizing different members of the SKD family. The package computes both **Asymptotic** prediction intervals for standard series, and **Parametric Bootstrap** simulated prediction intervals for greater coverage in small sample settings.
 
 <div align="center">
   <img src="man/figures/application_forecast.jpg" alt="Modal Forecast Comparison" width="70%">
@@ -77,7 +77,8 @@ fit_manual <- fit_modal_arima(y, order=c(2, 0, 0))
 
 # Or, use the rigorous Auto Modal ARIMA selector (searches grid p, q recursively):
 # This will minimize AIC and automatically estimate d if needed.
-fit_auto <- auto.modal_arima(y, d=0, max.p=5, max.q=5)
+# We can specify the distribution (default is "normal", others are "t" and "laplace")
+fit_auto <- auto.modal_arima(y, d=0, max.p=5, max.q=5, dist="laplace")
 
 # Print the automatically fitted modal model
 print(fit_auto)
