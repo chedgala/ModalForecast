@@ -5,9 +5,6 @@
 #' Supports the Skew-Normal, Skewed Student-t, and Skewed Laplace distributions.
 #'
 #' @references
-#' Fernandez, C. and Steel, M. F. J. (1998). On Bayesian Modeling of Fat Tails
-#' and Skewness. Journal of the American Statistical Association, 93(441), 359-371.
-#'
 #' Galarza, C. E., Lachos, V. H., Cabral, C. R. B., and Castro, L. M. (2017).
 #' Robust quantile regression using a generalized class of skewed distributions.
 #' Stat, 6(1), 113-130.

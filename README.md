@@ -24,8 +24,13 @@ Instead of the standard mean-based ARIMA, we model the sequence of conditional m
 
 $$ \mu_t = c + \sum_{i=1}^p \phi_i y_{t-i} + \sum_{j=1}^q \theta_j \epsilon_{t-j} $$
 
-where $\epsilon_t = y_t - \mu_t$ is the asymmetric prediction error, $p$ is the autoregressive order, and $q$ is the moving average order. The parameters are estimated via Maximum Likelihood Estimation (MLE) over the sequence of observations.
+where $\epsilon_t = y_t - \mu_t$ is the asymmetric prediction error, $p$ is the autoregressive order, and $q$ is the moving average order. 
 
+The parameter vector $\boldsymbol{\Theta} = (c, \boldsymbol{\phi}, \boldsymbol{\theta}, \sigma, \gamma, \boldsymbol{\nu})^\top$ is estimated via Maximum Likelihood Estimation (MLE). Conditionally on the initial values, the log-likelihood function over the sequence of $n$ observations is constructed explicitly as a function of $y_t$:
+
+$$ \ell(\boldsymbol{\Theta}) = \sum_{t=1}^n \log f(y_t | \mu_t, \sigma, \gamma, \boldsymbol{\nu}) $$
+
+where $f(\cdot)$ is the probability density function of the chosen SKD distribution (e.g., Skew-Normal, Skewed Student-t, Skewed Laplace), and $\mu_t$ embeds the recursive ARIMA structure.
 ## Installation
 
 You can install the development version of ModalForecast from GitHub with:
