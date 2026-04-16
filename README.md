@@ -51,14 +51,18 @@ The `envelope()` function constructs simulation envelopes based on the exact the
 
 Below is an evaluation of the Skew-Normal, Skewed Student-t, and Skewed Laplace fits on the `lynx` dataset:
 
-![Diagnostic Envelopes](man/figures/diagnostics_lynx.png)
+<p align="center">
+  <img src="man/figures/diagnostics_lynx_premium.png" width="80%">
+</p>
 
 The `diagnostics()` function provides additional analysis including ACF/PACF of Randomized Quantile Residuals (RQR), and the `summary()` method handles analytical Fisher Information matrix standard errors.
 
 ### Out-of-Sample Forecasting
 Comparison between traditional Gaussian ARIMA (Mean) and the Modal ARIMA (Mode) utilizing different members of the SKD family. The package computes both **Asymptotic** prediction intervals for standard series, and **Parametric Bootstrap** simulated prediction intervals for greater coverage in small sample settings.
 
-![Modal Forecast Comparison](man/figures/application_forecast.jpg)
+<p align="center">
+  <img src="man/figures/forecast_lynx_premium.png" width="80%">
+</p>
 
 ## Quick Start Tutorial
 
