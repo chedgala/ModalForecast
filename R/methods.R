@@ -42,7 +42,7 @@ BIC.modal_arima <- function(object, ...) {
 summary.modal_arima <- function(object, ...) {
   dist <- if (!is.null(object$dist)) object$dist else "normal"
 
-  se <- tryCatch(sqrt(diag(solve(object$hessian))), error = function(e) rep(NA, length(object$coefficients)))
+  se <- suppressWarnings(tryCatch(sqrt(diag(solve(object$hessian))), error = function(e) rep(NA, length(object$coefficients))))
   z <- object$coefficients / se
   pval <- 2 * (1 - pnorm(abs(z)))
 

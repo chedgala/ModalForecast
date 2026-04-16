@@ -37,24 +37,36 @@
 #' @export
 #'
 #' @examples
-#' # 1. Simulate an asymmetric AR(1) time series
-#' set.seed(123)
-#' y <- arima.sim(n = 200, list(ar = 0.5))
+#' \donttest{
+#' library(forecast)
+#' 
+#' # 1. Load Empirical Data (Lynx)
+#' data(lynx)
+#' y <- log10(lynx)
 #'
-#' # 2. Fit with Skew-Normal (default), Skewed Student-t, and Skewed Laplace
-#' mod_n <- fit_modal_arima(y, order = c(1, 0, 0), dist = "normal")
-#' mod_t <- fit_modal_arima(y, order = c(1, 0, 0), dist = "t")
-#' mod_l <- fit_modal_arima(y, order = c(1, 0, 0), dist = "laplace")
+#' # 2. Find the best SKD Error Distribution (Normal vs T vs Laplace) 
+#' fit_n <- fit_modal_arima(y, order = c(2, 0, 0), dist = "normal")
+#' fit_t <- fit_modal_arima(y, order = c(2, 0, 0), dist = "t")
+#' fit_l <- fit_modal_arima(y, order = c(2, 0, 0), dist = "laplace")
+#' c(Normal = AIC(fit_n), Student = AIC(fit_t), Laplace = AIC(fit_l))
 #'
-#' # 3. Compare models
-#' AIC(mod_n); AIC(mod_t); AIC(mod_l)
+#' # 3. Auto Model Selection globally on the winning distribution (Skew-Normal)
+#' fit_auto <- auto.modal.arima(y, d=0, max.p=5, max.q=5, dist="normal")
 #'
-#' # 4. Run residual diagnostics
-#' diagnostics(mod_n)
+#' # 4. Summary & Inferences
+#' summary(fit_auto)
 #'
-#' # 5. Produce forecasts with prediction bands
-#' pred <- forecast(mod_n, h = 10, level = c(80, 95), interval = "asymptotic")
-#' print(pred$lower)
+#' # 5. Run residual diagnostics and Envelopes
+#' diagnostics(fit_auto)
+#' envelope(fit_auto, B=100)
+#'
+#' # 6. Produce forecasts with multiple prediction bands (alphas)
+#' pred <- forecast(fit_auto, h=10, level = c(80, 95, 99))
+#'
+#' # 7. Native integration with 'forecast' ecosystem
+#' autoplot(pred)    
+#' accuracy(pred)    
+#' }
 fit_modal_arima <- function(y, order = c(1, 0, 0), dist = c("normal", "t", "laplace")) {
   dist <- match.arg(dist)
   if (length(order) != 3) stop("'order' must have length 3 (p, d, q)")

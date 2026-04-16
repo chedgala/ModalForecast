@@ -85,9 +85,10 @@ forecast::forecast
 }
 .pskl <- function(x, mu = 0, sigma = 1, gamma = 1) {
   p_skew <- 1/(gamma^2+1); cdf <- numeric(length(x))
-  idx_le <- which(x <= mu); idx_gt <- which(x > mu)
-  if (length(idx_le) > 0) cdf[idx_le] <- p_skew*(1-exp(-2*(1-p_skew)*(mu-x[idx_le])/sigma))
-  if (length(idx_gt) > 0) cdf[idx_gt] <- 1-(1-p_skew)*exp(-2*p_skew*(x[idx_gt]-mu)/sigma)
+  mu_v <- rep_len(mu, length(x)); sig_v <- rep_len(sigma, length(x))
+  idx_le <- which(x <= mu_v); idx_gt <- which(x > mu_v)
+  if (length(idx_le) > 0) cdf[idx_le] <- p_skew*(1-exp(-2*(1-p_skew)*(mu_v[idx_le]-x[idx_le])/sig_v[idx_le]))
+  if (length(idx_gt) > 0) cdf[idx_gt] <- 1-(1-p_skew)*exp(-2*p_skew*(x[idx_gt]-mu_v[idx_gt])/sig_v[idx_gt])
   pmax(0, pmin(1, cdf))
 }
 .qskl <- function(prob, mu = 0, sigma = 1, gamma = 1) {
@@ -122,17 +123,34 @@ forecast::forecast
 #'
 #' @examples
 #' \donttest{
-#' set.seed(123)
-#' y <- arima.sim(n = 200, list(ar = 0.5))
-#' mod <- fit_modal_arima(y, order = c(1, 0, 0))
-#' 
-#' # Produce forecast for multiple levels
-#' pred <- forecast(mod, h = 10, level = c(80, 95, 99))
-#' 
-#' # Native forecast library integration
 #' library(forecast)
-#' autoplot(pred)
-#' accuracy(pred)
+#' 
+#' # 1. Load Empirical Data (Lynx)
+#' data(lynx)
+#' y <- log10(lynx)
+#'
+#' # 2. Find the best SKD Error Distribution (Normal vs T vs Laplace) 
+#' fit_n <- fit_modal_arima(y, order = c(2, 0, 0), dist = "normal")
+#' fit_t <- fit_modal_arima(y, order = c(2, 0, 0), dist = "t")
+#' fit_l <- fit_modal_arima(y, order = c(2, 0, 0), dist = "laplace")
+#' c(Normal = AIC(fit_n), Student = AIC(fit_t), Laplace = AIC(fit_l))
+#'
+#' # 3. Auto Model Selection globally on the winning distribution (Skew-Normal)
+#' fit_auto <- auto.modal.arima(y, d=0, max.p=5, max.q=5, dist="normal")
+#'
+#' # 4. Summary & Inferences
+#' summary(fit_auto)
+#'
+#' # 5. Run residual diagnostics and Envelopes
+#' diagnostics(fit_auto)
+#' envelope(fit_auto, B=100)
+#'
+#' # 6. Produce forecasts with multiple prediction bands (alphas)
+#' pred <- forecast(fit_auto, h=10, level = c(80, 95, 99))
+#'
+#' # 7. Native integration with 'forecast' ecosystem
+#' autoplot(pred)    
+#' accuracy(pred)    
 #' }
 forecast.modal_arima <- function(object, h = 10, level = c(80, 95), interval = c("asymptotic", "bootstrap"), npaths = 1000, ...) {
   interval <- match.arg(interval)
@@ -207,8 +225,18 @@ forecast.modal_arima <- function(object, h = 10, level = c(80, 95), interval = c
   }
 
   dist_label <- switch(dist, "normal"="Skew-Normal", "t"="Skewed Student-t", "laplace"="Skewed Laplace")
-  res <- list(mean=pred, lower=lower, upper=upper, level=level,
+  y_ts <- if(stats::is.ts(object$y)) object$y else stats::ts(object$y)
+  tsp_y <- stats::tsp(y_ts)
+  if (is.null(tsp_y)) tsp_y <- c(1, length(y_ts), 1)
+  
+  mean_ts <- stats::ts(pred, start = tsp_y[2] + 1/tsp_y[3], frequency = tsp_y[3])
+  lower_ts <- stats::ts(lower, start = tsp_y[2] + 1/tsp_y[3], frequency = tsp_y[3])
+  upper_ts <- stats::ts(upper, start = tsp_y[2] + 1/tsp_y[3], frequency = tsp_y[3])
+  fitted_ts <- stats::ts(object$fitted.values, start = tsp_y[1], frequency = tsp_y[3])
+  resid_ts <- stats::ts(object$residuals, start = tsp_y[1], frequency = tsp_y[3])
+  
+  res <- list(mean=mean_ts, lower=lower_ts, upper=upper_ts, level=level,
               method=paste0("Modal ARIMA(", p, ",", d, ",", q, ") [", dist_label, "]"),
-              x=object$y, model=object, fitted=object$fitted.values, residuals=object$residuals)
+              x=y_ts, model=object, fitted=fitted_ts, residuals=resid_ts)
   class(res) <- "forecast"; return(res)
 }

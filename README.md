@@ -66,20 +66,25 @@ Below is a brief tutorial showing how to adjust a modal ARIMA model to empirical
 
 ```r
 library(ModalForecast)
+library(forecast)
 
-# Use the famous lynx dataset (annual numbers of lynx trappings, 1821–1934 in Canada)
+# 1. Load Empirical Data (Lynx)
 data(lynx)
 y <- log10(lynx) # log-transformation is common for this dataset
 
-# Fit a Modal ARIMA(2,0,0) model manually:
-fit_manual <- fit_modal_arima(y, order=c(2, 0, 0))
+# 2. Find the best SKD Error Distribution (Normal vs T vs Laplace) 
+# We fit a base Model and compare Information Criteria (e.g. AIC)
+fit_n <- fit_modal_arima(y, order=c(2, 0, 0), dist="normal")
+fit_t <- fit_modal_arima(y, order=c(2, 0, 0), dist="t")
+fit_l <- fit_modal_arima(y, order=c(2, 0, 0), dist="laplace")
 
-# Or, use the rigorous Auto Modal ARIMA selector (searches grid p, q recursively):
-# This will minimize AIC and automatically estimate d if needed.
-# We can specify the distribution (default is "normal", others are "t" and "laplace")
-fit_auto <- auto.modal.arima(y, d=0, max.p=5, max.q=5, dist="laplace")
+c(Normal = AIC(fit_n), Student = AIC(fit_t), Laplace = AIC(fit_l))
 
-# Print the automatically fitted modal model
+# 3. Use the rigorous Auto Modal ARIMA selector globally on the best distribution
+# Since Skew-Normal returned the lowest AIC (-4.46), it wins. 
+fit_auto <- auto.modal.arima(y, d=0, max.p=5, max.q=5, dist="normal")
+
+# 4. Print the automatically fitted modal model
 print(fit_auto)
 
 # Model Summary & Diagnostics

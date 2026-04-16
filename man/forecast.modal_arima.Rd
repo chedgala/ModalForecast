@@ -34,16 +34,33 @@ Forecast methodology for Modal ARIMA
 }
 \examples{
 \donttest{
-set.seed(123)
-y <- arima.sim(n = 200, list(ar = 0.5))
-mod <- fit_modal_arima(y, order = c(1, 0, 0))
-
-# Produce forecast for multiple levels
-pred <- forecast(mod, h = 10, level = c(80, 95, 99))
-
-# Native forecast library integration
 library(forecast)
-autoplot(pred)
-accuracy(pred)
+
+# 1. Load Empirical Data (Lynx)
+data(lynx)
+y <- log10(lynx)
+
+# 2. Find the best SKD Error Distribution (Normal vs T vs Laplace) 
+fit_n <- fit_modal_arima(y, order = c(2, 0, 0), dist = "normal")
+fit_t <- fit_modal_arima(y, order = c(2, 0, 0), dist = "t")
+fit_l <- fit_modal_arima(y, order = c(2, 0, 0), dist = "laplace")
+c(Normal = AIC(fit_n), Student = AIC(fit_t), Laplace = AIC(fit_l))
+
+# 3. Auto Model Selection globally on the winning distribution (Skew-Normal)
+fit_auto <- auto.modal.arima(y, d=0, max.p=5, max.q=5, dist="normal")
+
+# 4. Summary & Inferences
+summary(fit_auto)
+
+# 5. Run residual diagnostics and Envelopes
+diagnostics(fit_auto)
+envelope(fit_auto, B=100)
+
+# 6. Produce forecasts with multiple prediction bands (alphas)
+pred <- forecast(fit_auto, h=10, level = c(80, 95, 99))
+
+# 7. Native integration with 'forecast' ecosystem
+autoplot(pred)    
+accuracy(pred)    
 }
 }

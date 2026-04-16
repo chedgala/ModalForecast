@@ -29,33 +29,34 @@
 #'
 #' @examples
 #' \donttest{
-#' # 1. Simulate an asymmetric AR(1) time series
-#' set.seed(123)
-#' y <- arima.sim(n = 200, list(ar = 0.5))
+#' library(forecast)
+#' 
+#' # 1. Load Empirical Data (Lynx)
+#' data(lynx)
+#' y <- log10(lynx)
 #'
-#' # 2. Fit Modal ARIMA models with different distributions
-#' mod_n <- fit_modal_arima(y, order = c(1, 0, 0), dist = "normal")
-#' mod_t <- fit_modal_arima(y, order = c(1, 0, 0), dist = "t")
-#' mod_l <- fit_modal_arima(y, order = c(1, 0, 0), dist = "laplace")
+#' # 2. Find the best SKD Error Distribution (Normal vs T vs Laplace) 
+#' fit_n <- fit_modal_arima(y, order = c(2, 0, 0), dist = "normal")
+#' fit_t <- fit_modal_arima(y, order = c(2, 0, 0), dist = "t")
+#' fit_l <- fit_modal_arima(y, order = c(2, 0, 0), dist = "laplace")
+#' c(Normal = AIC(fit_n), Student = AIC(fit_t), Laplace = AIC(fit_l))
 #'
-#' # 3. Compare models
-#' summary(mod_n)
-#' summary(mod_l)
-#' AIC(mod_n); AIC(mod_t); AIC(mod_l)
+#' # 3. Auto Model Selection globally on the winning distribution (Skew-Normal)
+#' fit_auto <- auto.modal.arima(y, d=0, max.p=5, max.q=5, dist="normal")
 #'
-#' # 4. Run residual diagnostics
-#' diagnostics(mod_n)
+#' # 4. Summary & Inferences
+#' summary(fit_auto)
 #'
-#' # 5. Auto Model Selection
-#' fit_auto <- auto.modal.arima(y, d=0, max.p=5, max.q=5, dist="laplace")
+#' # 5. Run residual diagnostics and Envelopes
+#' diagnostics(fit_auto)
+#' envelope(fit_auto, B=100)
 #'
-#' # 5. Produce forecasts with multiple prediction bands (alphas)
+#' # 6. Produce forecasts with multiple prediction bands (alphas)
 #' pred <- forecast(fit_auto, h=10, level = c(80, 95, 99))
 #'
-#' # 6. Native integration with the 'forecast' library ecosystem:
-#' library(forecast)
-#' autoplot(pred)    # Plot identical to standard ARIMA forecast
-#' accuracy(pred)    # Evaluate diagnostic metrics
+#' # 7. Native integration with 'forecast' ecosystem
+#' autoplot(pred)    
+#' accuracy(pred)    
 #' }
 auto.modal.arima <- function(y, d = NA, max.p = 5, max.q = 5,
                               ic = c("aic", "bic"),

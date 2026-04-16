@@ -18,10 +18,34 @@
 #'
 #' @examples
 #' \donttest{
-#' set.seed(123)
-#' y <- arima.sim(n = 200, list(ar = 0.5))
-#' mod <- fit_modal_arima(y, order = c(1, 0, 0), dist="normal")
-#' diagnostics(mod)
+#' library(forecast)
+#' 
+#' # 1. Load Empirical Data (Lynx)
+#' data(lynx)
+#' y <- log10(lynx)
+#'
+#' # 2. Find the best SKD Error Distribution (Normal vs T vs Laplace) 
+#' fit_n <- fit_modal_arima(y, order = c(2, 0, 0), dist = "normal")
+#' fit_t <- fit_modal_arima(y, order = c(2, 0, 0), dist = "t")
+#' fit_l <- fit_modal_arima(y, order = c(2, 0, 0), dist = "laplace")
+#' c(Normal = AIC(fit_n), Student = AIC(fit_t), Laplace = AIC(fit_l))
+#'
+#' # 3. Auto Model Selection globally on the winning distribution (Skew-Normal)
+#' fit_auto <- auto.modal.arima(y, d=0, max.p=5, max.q=5, dist="normal")
+#'
+#' # 4. Summary & Inferences
+#' summary(fit_auto)
+#'
+#' # 5. Run residual diagnostics and Envelopes
+#' diagnostics(fit_auto)
+#' envelope(fit_auto, B=100)
+#'
+#' # 6. Produce forecasts with multiple prediction bands (alphas)
+#' pred <- forecast(fit_auto, h=10, level = c(80, 95, 99))
+#'
+#' # 7. Native integration with 'forecast' ecosystem
+#' autoplot(pred)    
+#' accuracy(pred)    
 #' }
 diagnostics <- function(object, ...) {
   UseMethod("diagnostics")
@@ -110,13 +134,16 @@ diagnostics.modal_arima <- function(object, ...) {
   cat(sprintf("Distribution: %s\n", dist))
   sw <- stats::shapiro.test(rqr)
   cat(sprintf("Shapiro-Wilk Normality Test: W = %.4f, p-value = %.4f\n", sw$statistic, sw$p.value))
+  if (sw$p.value > 0.05) cat("  -> Normality assumption met (Expected/Good fit).\n") else cat("  -> Normality assumption rejected (Requires investigation).\n")
+  
   lb <- stats::Box.test(rqr, lag = 10, type = "Ljung-Box")
   cat(sprintf("Ljung-Box Test (lag=10):     X2 = %.4f, p-value = %.4f\n", lb$statistic, lb$p.value))
+  if (lb$p.value > 0.05) cat("  -> Residuals are independent / No Autocorrelation (Expected/Good fit).\n") else cat("  -> Residuals are autocorrelated (Investigate lags).\n")
   cat(sprintf("\nEstimated gamma (skewness):  %.4f\n", gamma_hat))
   gamma_se <- tryCatch(sqrt(diag(solve(object$hessian))[length(object$coefficients) - if(dist=="t") 1 else 0]), error=function(e) NA)
   if (!is.na(gamma_se)) {
       p_gamma <- 2 * (1 - stats::pnorm(abs((gamma_hat - 1) / gamma_se)))
-      if (p_gamma > 0.05) cat("  -> Do not reject symmetry (gamma = 1).\n\n") else cat("  -> Reject symmetry.\n\n")
+      if (p_gamma > 0.05) cat("  -> Symmetry confirmed (gamma = 1) (Expected if true series is symmetric).\n\n") else cat("  -> Symmetry rejected / SKD Skewness present (Expected by model).\n\n")
   }
   if (dist == "t") cat(sprintf("Estimated nu (d.f.):        %.4f\n\n", nu_hat))
 
