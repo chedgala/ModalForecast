@@ -46,11 +46,18 @@
 #' # 4. Run residual diagnostics
 #' diagnostics(mod_n)
 #'
-#' # 5. Produce forecasts with prediction bands
-#' pred <- forecast(mod_n, h = 10, level = c(80, 95), interval = "asymptotic")
-#' print(pred$lower)
+#' # 5. Auto Model Selection
+#' fit_auto <- auto.modal.arima(y, d=0, max.p=5, max.q=5, dist="laplace")
+#'
+#' # 5. Produce forecasts with multiple prediction bands (alphas)
+#' pred <- forecast(fit_auto, h=10, level = c(80, 95, 99))
+#'
+#' # 6. Native integration with the 'forecast' library ecosystem:
+#' library(forecast)
+#' autoplot(pred)    # Plot identical to standard ARIMA forecast
+#' accuracy(pred)    # Evaluate diagnostic metrics
 #' }
-auto.modal_arima <- function(y, d = NA, max.p = 5, max.q = 5,
+auto.modal.arima <- function(y, d = NA, max.p = 5, max.q = 5,
                               ic = c("aic", "bic"),
                               dist = c("normal", "t", "laplace")) {
   ic <- match.arg(ic)

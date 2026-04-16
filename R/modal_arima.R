@@ -9,7 +9,7 @@
 #' Robust quantile regression using a generalized class of skewed distributions.
 #' Stat, 6(1), 113-130.
 #'
-#' @seealso \code{\link{auto.modal_arima}}
+#' @seealso \code{\link{auto.modal.arima}}
 #'
 #' @note GitHub repository: \url{https://github.com/chedgala/ModalForecast}
 #'
@@ -58,6 +58,7 @@
 fit_modal_arima <- function(y, order = c(1, 0, 0), dist = c("normal", "t", "laplace")) {
   dist <- match.arg(dist)
   if (length(order) != 3) stop("'order' must have length 3 (p, d, q)")
+  if (anyNA(y)) stop("Missing values (NAs) are not currently supported in ModalForecast.")
 
   p <- order[1]
   d <- order[2]
@@ -385,6 +386,24 @@ fit_modal_arima <- function(y, order = c(1, 0, 0), dist = c("normal", "t", "lapl
     names(coefficients) <- coef_names
   }
 
+  rec <- arima_recursion(opt$par, p, q, n, y)
+  eps_vals <- rep(NA, length(y_orig))
+  fit_vals <- rep(NA, length(y_orig))
+  
+  if (!is.null(rec)) {
+     if (d > 0) {
+        eps_vals[(d+1):length(y_orig)] <- rec$eps
+        fit_vals[(d+1):length(y_orig)] <- y_orig[(d+1):length(y_orig)] - rec$eps
+     } else {
+        eps_vals <- rec$eps
+        fit_vals <- rec$mu_t
+     }
+  }
+  if (stats::is.ts(y_orig)) {
+     eps_vals <- stats::ts(eps_vals, start=stats::start(y_orig), frequency=stats::frequency(y_orig))
+     fit_vals <- stats::ts(fit_vals, start=stats::start(y_orig), frequency=stats::frequency(y_orig))
+  }
+
   out <- list(
     y = y_orig,
     order = order,
@@ -392,7 +411,9 @@ fit_modal_arima <- function(y, order = c(1, 0, 0), dist = c("normal", "t", "lapl
     loglik = -opt$value,
     hessian = opt$hessian,
     convergence = opt$convergence,
-    dist = dist
+    dist = dist,
+    fitted.values = fit_vals,
+    residuals = eps_vals
   )
   class(out) <- "modal_arima"
   return(out)

@@ -125,8 +125,14 @@ forecast::forecast
 #' set.seed(123)
 #' y <- arima.sim(n = 200, list(ar = 0.5))
 #' mod <- fit_modal_arima(y, order = c(1, 0, 0))
-#' pred <- forecast(mod, h = 10, level = c(80, 95))
-#' print(pred$lower)
+#' 
+#' # Produce forecast for multiple levels
+#' pred <- forecast(mod, h = 10, level = c(80, 95, 99))
+#' 
+#' # Native forecast library integration
+#' library(forecast)
+#' autoplot(pred)
+#' accuracy(pred)
 #' }
 forecast.modal_arima <- function(object, h = 10, level = c(80, 95), interval = c("asymptotic", "bootstrap"), npaths = 1000, ...) {
   interval <- match.arg(interval)
@@ -203,6 +209,6 @@ forecast.modal_arima <- function(object, h = 10, level = c(80, 95), interval = c
   dist_label <- switch(dist, "normal"="Skew-Normal", "t"="Skewed Student-t", "laplace"="Skewed Laplace")
   res <- list(mean=pred, lower=lower, upper=upper, level=level,
               method=paste0("Modal ARIMA(", p, ",", d, ",", q, ") [", dist_label, "]"),
-              x=object$y, model=object)
+              x=object$y, model=object, fitted=object$fitted.values, residuals=object$residuals)
   class(res) <- "forecast"; return(res)
 }

@@ -10,7 +10,9 @@ By modeling the mode directly, this framework helps mitigate the effects of loca
 ## Methodology
 
 ### The Skewed Distribution (SKD) Family
-To construct a modal regression model, we require a flexible parametric continuous distribution where the mode is explicitly parameterized and differentiable. We adopt the generalized SKD family, which supports robust inference through heavy tails and asymmetry. The package currently implements the Skew-Normal, Skewed Student-t, and Skewed Laplace distributions.
+To construct a modal regression model, we require a flexible parametric continuous distribution where the mode is explicitly parameterized and differentiable. We adopt the generalized SKD family, which supports robust inference through heavy tails and asymmetry. The package currently implements the **Skew-Normal**, **Skewed Student-t**, and **Skewed Laplace** distributions.
+
+> **Note on the "normal" distribution:** In `ModalForecast`, specifying `dist = "normal"` does not invoke the standard symmetric Gaussian distribution. Instead, it refers to the **Skew-Normal** distribution from the SKD family. The standard normal is recovered asymptotically only when the estimated skewness parameter $\gamma = 1$.
 
 Let $y_t \in \mathbb{R}$ be the response variable at time $t$. We assume $y_t$ follows a distribution from the SKD family with mode $\mu_t$, scale $\sigma$, skewness parameter $\gamma \in (0,\infty)$ (or effectively $p \in (0,1)$), and tail parameter(s) $\boldsymbol{\nu}$:
 
@@ -49,18 +51,14 @@ The `envelope()` function constructs simulation envelopes based on the exact the
 
 Below is an evaluation of the Skew-Normal, Skewed Student-t, and Skewed Laplace fits on the `lynx` dataset:
 
-<div align="center">
-  <img src="man/figures/diagnostics_lynx.png" alt="Diagnostic Envelopes" width="100%">
-</div>
+![Diagnostic Envelopes](man/figures/diagnostics_lynx.png)
 
 The `diagnostics()` function provides additional analysis including ACF/PACF of Randomized Quantile Residuals (RQR), and the `summary()` method handles analytical Fisher Information matrix standard errors.
 
 ### Out-of-Sample Forecasting
 Comparison between traditional Gaussian ARIMA (Mean) and the Modal ARIMA (Mode) utilizing different members of the SKD family. The package computes both **Asymptotic** prediction intervals for standard series, and **Parametric Bootstrap** simulated prediction intervals for greater coverage in small sample settings.
 
-<div align="center">
-  <img src="man/figures/application_forecast.jpg" alt="Modal Forecast Comparison" width="70%">
-</div>
+![Modal Forecast Comparison](man/figures/application_forecast.jpg)
 
 ## Quick Start Tutorial
 
@@ -79,7 +77,7 @@ fit_manual <- fit_modal_arima(y, order=c(2, 0, 0))
 # Or, use the rigorous Auto Modal ARIMA selector (searches grid p, q recursively):
 # This will minimize AIC and automatically estimate d if needed.
 # We can specify the distribution (default is "normal", others are "t" and "laplace")
-fit_auto <- auto.modal_arima(y, d=0, max.p=5, max.q=5, dist="laplace")
+fit_auto <- auto.modal.arima(y, d=0, max.p=5, max.q=5, dist="laplace")
 
 # Print the automatically fitted modal model
 print(fit_auto)
@@ -88,9 +86,17 @@ print(fit_auto)
 summary(fit_auto)
 diagnostics(fit_auto)
 
-# Forecast modal trajectory
-pred <- forecast(fit_auto, h=10)
-plot(pred)
+# Forecast modal trajectory with multiple confidence levels (alphas)
+pred <- forecast(fit_auto, h=10, level=c(80, 95, 99))
+
+# The package natively supports the 'forecast' library ecosystem:
+library(forecast)
+
+# 1. Plot rich visualization with confidence bands identical to standard ARIMA
+autoplot(pred)
+
+# 2. Evaluate forecast metric diagnostic functions (ME, RMSE, MAE, MAPE, etc.)
+accuracy(pred)
 ```
 
 The fitted object returns standard coefficients, scale `sigma`, and skewness `gamma`. If `gamma` is significantly different from 1, it indicates positive asymmetry (right-skewness if $>1$) or negative asymmetry ($<1$), capturing patterns that typical least-squares ARIMA would miss. If the specified distribution possesses additional tail parameters (like `nu` for Skewed Student-t), they are estimated automatically.

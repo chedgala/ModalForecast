@@ -37,7 +37,13 @@ Forecast methodology for Modal ARIMA
 set.seed(123)
 y <- arima.sim(n = 200, list(ar = 0.5))
 mod <- fit_modal_arima(y, order = c(1, 0, 0))
-pred <- forecast(mod, h = 10, level = c(80, 95))
-print(pred$lower)
+
+# Produce forecast for multiple levels
+pred <- forecast(mod, h = 10, level = c(80, 95, 99))
+
+# Native forecast library integration
+library(forecast)
+autoplot(pred)
+accuracy(pred)
 }
 }
