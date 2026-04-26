@@ -12,3 +12,9 @@
 ^.*\.Rdata$
 ^pruebas$
 ^to-do.txt$
+^cran-comments\.md$
+^generate_solid_plots\.R$
+^generate_premium_plots\.R$
+^generate_premium_diag\.R$
+^test_script\.R$
+^CRAN-SUBMISSION$
