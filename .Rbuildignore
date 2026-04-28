@@ -18,3 +18,5 @@
 ^generate_premium_diag\.R$
 ^test_script\.R$
 ^CRAN-SUBMISSION$
+^Rplots\.pdf$
+^submit_mock\.R$

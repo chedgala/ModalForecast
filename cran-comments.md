@@ -11,4 +11,7 @@ There were no ERRORs or WARNINGs.
 There were no NOTEs.
 
 ## Resubmission
-This is the first submission of the package to CRAN.
+This is a resubmission. In this version I have:
+* Fixed the NOTE regarding the non-standard file `Rplots.pdf` found at top level by removing it and adding it to `.Rbuildignore` and `.gitignore`.
+* Fixed the NOTE regarding the non-standard file `submit_mock.R` found at top level by adding it to `.Rbuildignore`.
+* The possibly misspelled word "SKD" in the DESCRIPTION file is an acronym for "Skewed Distribution" and is spelled correctly.
