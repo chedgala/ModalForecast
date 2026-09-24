@@ -66,16 +66,14 @@ devtools::install_github("chedgala/ModalForecast")
 
 The following plots demonstrate the diagnostic capabilities and forecasting performance of the `ModalForecast` package using the well-known `lynx` dataset.
 
-### Diagnostic Envelopes and Inference
-The `envelope()` function constructs simulation envelopes based on the exact theoretical distance distributions of the SKD family (e.g., half-normal, half-t, exponential). This provides a visually intuitive goodness-of-fit assessment to help select the best distribution among `normal`, `t`, or `laplace`. 
+### Diagnostics and Inference
+The `diagnostics()` function produces a 6-panel diagnostic grid: the fitted modes against the observed series, the ACF and PACF of the randomized quantile residuals (RQR), a normal QQ-plot, a histogram, and Ljung-Box p-values by lag. The `summary()` method reports analytical Fisher Information matrix standard errors, and `envelope()` constructs simulation envelopes based on the exact theoretical distance distributions of the SKD family (e.g., half-normal, half-t, exponential) to help select among `normal`, `t`, or `laplace`.
 
-Below is an evaluation of the Skew-Normal, Skewed Student-t, and Skewed Laplace fits on the `lynx` dataset:
+Below is the diagnostic panel for the Skew-Normal Modal SARIMA fit on the `lynx` dataset:
 
 <p align="center">
-  <img src="man/figures/diagnostics_lynx_premium.png" width="80%">
+  <img src="man/figures/diagnostics_lynx_sarima.png" width="80%">
 </p>
-
-The `diagnostics()` function provides additional analysis including ACF/PACF of Randomized Quantile Residuals (RQR), and the `summary()` method handles analytical Fisher Information matrix standard errors.
 
 ### Out-of-Sample Forecasting
 Comparison between the traditional Gaussian ARIMA mean, the Modal SARIMA joint modal trajectory, and its marginal mode. The package computes both **Asymptotic** prediction intervals (here, exact, from the convolution of the fitted SKD densities) and **Parametric Bootstrap** simulated prediction intervals for greater coverage in small-sample settings. A seasonal component for the ten-year lynx cycle (Modal SARIMA$(4,0,2)(1,0,0)_{10}$) improves on the non-seasonal fit; see the [Modal SARIMA paper](https://github.com/chedgala/modal-sarima) for the full analysis.
