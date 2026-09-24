@@ -3,7 +3,9 @@ Title: Parametric Modal ARIMA and Seasonal ARIMA Models using the SKD Family
 Version: 0.2.0
 Authors@R: c(
     person("Christian", "Galarza", email = "chedgala@espol.edu.ec", role = c("aut", "cre")),
-    person("Sergio", "Mercado Londoño", email = "luis.mercado@udea.edu.co", role = "ctb"))
+    person("Sergio Luis", "Mercado Londoño", email = "luis.mercado@udea.edu.co", role = "ctb"),
+    person("Víctor Hugo", "Lachos", email = "hlachos@uconn.edu", role = "ctb",
+           comment = c(ORCID = "0000-0002-7239-2459")))
 Description: Implements parametric modal Autoregressive Integrated Moving Average (ARIMA) and seasonal ARIMA (SARIMA) models utilizing the Skewed Distribution (SKD) family, in which the conditional mode, rather than the conditional mean, follows the (seasonal) ARIMA recursion. Current distributions supported are the Skew-Normal, Skewed Student-t, and Skewed Laplace. The parameters are estimated by maximum likelihood using analytical gradients. Includes residual diagnostics, simulation envelopes, automatic order selection, joint and marginal modal forecasts, exact and parametric bootstrap prediction intervals, and classical asymptotic inference via the Fisher Information matrix. Methods are described in Galarza, C.E., Lachos, V.H., Cabral, C.R.B., & Castro, L.M. (2017) <doi:10.1002/sta4.140>.
 URL: https://github.com/chedgala/ModalForecast
 BugReports: https://github.com/chedgala/ModalForecast/issues

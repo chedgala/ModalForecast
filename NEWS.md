@@ -27,7 +27,7 @@
   Skewed Laplace fit fall below the envelope, because its maximum likelihood
   fit pulls several residuals to zero. `refit = FALSE` keeps the faster
   envelope based on simulated innovations.
-* Sergio Mercado Londoño joins as a contributor.
+* Sergio Luis Mercado Londoño and Víctor Hugo Lachos join as contributors.
 
 ## Changes in parameterization
 

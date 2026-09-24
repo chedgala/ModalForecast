@@ -21,7 +21,8 @@ Useful links:
 
 Other contributors:
 \itemize{
-  \item Sergio Mercado Londoño \email{luis.mercado@udea.edu.co} [contributor]
+  \item Sergio Luis Mercado Londoño \email{luis.mercado@udea.edu.co} [contributor]
+  \item Víctor Hugo Lachos \email{hlachos@uconn.edu} (\href{https://orcid.org/0000-0002-7239-2459}{ORCID}) [contributor]
 }
 
 }
