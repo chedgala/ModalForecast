@@ -28,11 +28,9 @@ the ACF, PACF and Ljung-Box statistics cover at least two seasonal periods.
 # Non-seasonal
 fit <- fit_modal_arima(log10(lynx), order = c(2, 0, 0))
 diagnostics(fit)
-envelope(fit, B = 10)
 
 # Seasonal airline model
 fit_air <- fit_modal_arima(log(AirPassengers), order = c(0, 1, 1),
                            seasonal = list(order = c(0, 1, 1), period = 12))
 diagnostics(fit_air)
-envelope(fit_air, B = 10)
 }

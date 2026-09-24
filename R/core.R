@@ -212,6 +212,18 @@
   list(matrix = crossprod(S), type = "opg")
 }
 
+# Simulate n values of the differenced series w from the model, after a burn-in.
+.simulate_differenced <- function(pp, spec, n, burn = 200) {
+  polys <- .lag_polys(pp, spec)
+  r <- length(polys$ma) - 1
+  N <- n + burn
+  eps <- .rskd(N + r, 0, pp$sigma, pp$gamma, spec$dist, pp$nu)
+  x <- pp$c + .apply_poly(eps, polys$ma)[r + seq_len(N)]
+  w <- if (length(polys$ar) > 1)
+    as.numeric(stats::filter(x, -polys$ar[-1], method = "recursive")) else x
+  w[burn + seq_len(n)]
+}
+
 # Differenced series, residuals and modes for a fitted object.
 .modal_filter <- function(object) {
   spec <- .object_spec(object)

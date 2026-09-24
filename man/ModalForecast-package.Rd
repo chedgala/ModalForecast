@@ -19,5 +19,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Christian Galarza \email{chedgala@espol.edu.ec}
 
+Other contributors:
+\itemize{
+  \item Sergio Mercado Londoño \email{luis.mercado@udea.edu.co} [contributor]
+}
+
 }
 \keyword{internal}

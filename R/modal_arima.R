@@ -102,16 +102,9 @@ fit_modal_arima <- function(y, order = c(1, 0, 0),
   n_coef <- 1 + spec$p + spec$q + spec$P + spec$Q + 2 + (dist == "t")
   if (n <= n_coef + 1) stop("Not enough observations after differencing to fit this model.")
 
-  init <- .initial_values(w, spec)
   fn <- function(par) .neg_loglik(par, spec, w)
   gr <- function(par) .grad_neg_loglik(par, spec, w)
-
-  opt <- stats::optim(init, fn, gr, method = "BFGS", control = list(maxit = 1000))
-  if (dist == "laplace") {
-    nm <- stats::optim(opt$par, fn, method = "Nelder-Mead",
-                       control = list(maxit = 20000, reltol = 1e-12))
-    if (nm$value < opt$value) opt <- nm
-  }
+  opt <- .mle(w, spec, .initial_values(w, spec))
   info <- .information(opt$par, spec, w, fn, gr)
   hess <- info$matrix
 
@@ -160,6 +153,20 @@ fit_modal_arima <- function(y, order = c(1, 0, 0),
   )
   class(out) <- "modal_arima"
   out
+}
+
+# Maximize the log-likelihood of the differenced series w from 'init': BFGS with
+# analytical gradients, refined by Nelder-Mead for the non-smooth Laplace case.
+.mle <- function(w, spec, init, reltol = 1e-12) {
+  fn <- function(par) .neg_loglik(par, spec, w)
+  gr <- function(par) .grad_neg_loglik(par, spec, w)
+  opt <- stats::optim(init, fn, gr, method = "BFGS", control = list(maxit = 1000))
+  if (spec$dist == "laplace") {
+    nm <- stats::optim(opt$par, fn, method = "Nelder-Mead",
+                       control = list(maxit = 20000, reltol = reltol))
+    if (nm$value < opt$value) opt <- nm
+  }
+  opt
 }
 
 # Starting values from a conditional-sum-of-squares Gaussian (S)ARIMA fit of w.

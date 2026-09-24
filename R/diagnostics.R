@@ -21,13 +21,11 @@
 #' # Non-seasonal
 #' fit <- fit_modal_arima(log10(lynx), order = c(2, 0, 0))
 #' diagnostics(fit)
-#' envelope(fit, B = 10)
 #'
 #' # Seasonal airline model
 #' fit_air <- fit_modal_arima(log(AirPassengers), order = c(0, 1, 1),
 #'                            seasonal = list(order = c(0, 1, 1), period = 12))
 #' diagnostics(fit_air)
-#' envelope(fit_air, B = 10)
 diagnostics <- function(object, ...) {
   UseMethod("diagnostics")
 }
@@ -112,17 +110,38 @@ diagnostics.modal_arima <- function(object, ...) {
 #' distribution for the Skew-Normal, Skewed Student-t and Skewed Laplace
 #' members, respectively.
 #'
+#' @details
+#' With \code{refit = TRUE} (the default), each replication simulates a series
+#' from the fitted model, re-estimates the model and computes the distances of
+#' the re-estimated residuals, so the envelope accounts for parameter
+#' estimation. This matters most for the Skewed Laplace, whose maximum
+#' likelihood fit, like least absolute deviations, pulls several residuals to
+#' zero: without refitting, the smallest distances fall below the envelope even
+#' when the model is correct. With \code{refit = FALSE}, the envelope is built
+#' from simulated innovations at the estimated parameters, which is faster.
+#'
 #' @param object An object of class \code{modal_arima}.
 #' @param B Number of Monte Carlo replications for envelope construction. Default is 100.
+#' @param refit Logical. If \code{TRUE} (default), re-estimate the model on
+#'   each simulated series.
 #' @param ... Additional arguments (unused).
 #' @return A ggplot object (invisibly) and draws the envelope plot.
 #' @import ggplot2
 #' @export
+#'
+#' @examples
+#' fit <- fit_modal_arima(log10(lynx), order = c(2, 0, 0))
+#' envelope(fit, B = 10)
+#'
+#' # Seasonal model; refit = FALSE is faster, refit = TRUE accounts for estimation
+#' fit_air <- fit_modal_arima(log(AirPassengers), order = c(0, 1, 1),
+#'                            seasonal = list(order = c(0, 1, 1), period = 12))
+#' envelope(fit_air, B = 10, refit = FALSE)
 envelope <- function(object, ...) { UseMethod("envelope") }
 
 #' @rdname envelope
 #' @export
-envelope.modal_arima <- function(object, B = 100, ...) {
+envelope.modal_arima <- function(object, B = 100, refit = TRUE, ...) {
   Theoretical <- Observed <- Lower <- Upper <- Median <- NULL # ggplot2 hack
   st <- .modal_filter(object)
   dist <- st$spec$dist
@@ -133,11 +152,24 @@ envelope.modal_arima <- function(object, B = 100, ...) {
   # Distances d = rho_p(eps / sigma); 2d is distributed as |X| with X ~ g.
   z <- eps/sigma_hat; d_obs <- .rho(z, p_skew); d_obs_sorted <- sort(d_obs)
 
+  # Refits work on the differenced series, so the model has d = D = 0.
+  spec_w <- st$spec; spec_w$d <- 0; spec_w$D <- 0
+  par_hat <- .par_from_coef(object$coefficients, st$spec)
   envelope_mat <- matrix(NA, nrow=n, ncol=B)
   for (b in 1:B) {
-    sim_eps <- .rskd(n, 0, sigma_hat, gamma_hat, dist, nu_hat)
-    envelope_mat[,b] <- sort(.rho(sim_eps/sigma_hat, p_skew))
+    if (refit) {
+      w_sim <- .simulate_differenced(st$pp, spec_w, n)
+      opt <- tryCatch(.mle(w_sim, spec_w, par_hat, reltol = 1e-8), error = function(e) NULL)
+      if (is.null(opt)) next
+      pp_b <- .split_par(opt$par, spec_w)
+      e_b <- .recursion(pp_b, spec_w, w_sim)$eps
+      envelope_mat[,b] <- sort(.rho(e_b/pp_b$sigma, .p_skew(pp_b$gamma)))
+    } else {
+      sim_eps <- .rskd(n, 0, sigma_hat, gamma_hat, dist, nu_hat)
+      envelope_mat[,b] <- sort(.rho(sim_eps/sigma_hat, p_skew))
+    }
   }
+  envelope_mat <- envelope_mat[, colSums(is.na(envelope_mat)) == 0, drop = FALSE]
 
   env_lower <- apply(envelope_mat, 1, min); env_upper <- apply(envelope_mat, 1, max); env_median <- apply(envelope_mat, 1, stats::median)
   probs <- (1:n-0.5)/n
@@ -158,6 +190,9 @@ envelope.modal_arima <- function(object, B = 100, ...) {
   outside <- sum(d_obs_sorted < env_lower | d_obs_sorted > env_upper)
   cat(sprintf("\n=== Envelope Diagnostics [%s] ===\n", dist_label))
   cat(sprintf("Points outside envelope: %d / %d (%.1f%%)\n", outside, n, 100*outside/n))
+  if (refit)
+    cat(sprintf("Expected under a correct model: about %.1f%% (each point falls outside a %d-replication envelope with probability 2/(B+1))\n",
+                200 / (ncol(envelope_mat) + 1), ncol(envelope_mat)))
   invisible(pl)
 }
 

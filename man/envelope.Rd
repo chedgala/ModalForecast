@@ -7,7 +7,7 @@
 \usage{
 envelope(object, ...)
 
-\method{envelope}{modal_arima}(object, B = 100, ...)
+\method{envelope}{modal_arima}(object, B = 100, refit = TRUE, ...)
 }
 \arguments{
 \item{object}{An object of class \code{modal_arima}.}
@@ -15,6 +15,9 @@ envelope(object, ...)
 \item{...}{Additional arguments (unused).}
 
 \item{B}{Number of Monte Carlo replications for envelope construction. Default is 100.}
+
+\item{refit}{Logical. If \code{TRUE} (default), re-estimate the model on
+each simulated series.}
 }
 \value{
 A ggplot object (invisibly) and draws the envelope plot.
@@ -26,4 +29,23 @@ theoretical distribution under the SKD family (Galarza et al., 2017):
 twice the distance follows the half-normal, half-t or standard exponential
 distribution for the Skew-Normal, Skewed Student-t and Skewed Laplace
 members, respectively.
+}
+\details{
+With \code{refit = TRUE} (the default), each replication simulates a series
+from the fitted model, re-estimates the model and computes the distances of
+the re-estimated residuals, so the envelope accounts for parameter
+estimation. This matters most for the Skewed Laplace, whose maximum
+likelihood fit, like least absolute deviations, pulls several residuals to
+zero: without refitting, the smallest distances fall below the envelope even
+when the model is correct. With \code{refit = FALSE}, the envelope is built
+from simulated innovations at the estimated parameters, which is faster.
+}
+\examples{
+fit <- fit_modal_arima(log10(lynx), order = c(2, 0, 0))
+envelope(fit, B = 10)
+
+# Seasonal model; refit = FALSE is faster, refit = TRUE accounts for estimation
+fit_air <- fit_modal_arima(log(AirPassengers), order = c(0, 1, 1),
+                           seasonal = list(order = c(0, 1, 1), period = 12))
+envelope(fit_air, B = 10, refit = FALSE)
 }

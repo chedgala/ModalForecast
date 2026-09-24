@@ -59,3 +59,23 @@ test_that("objects saved with version 0.1.0 still work", {
   expect_length(predict(old, n.ahead = 3), 3)
   expect_s3_class(forecast(old, h = 3), "forecast")
 })
+
+test_that("envelope works with and without refitting", {
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off())
+  fit <- fit_modal_arima(log(AirPassengers), order = c(0, 1, 1), seasonal = c(0, 1, 1))
+  expect_output(envelope(fit, B = 10), "Expected under a correct model: about 18.2%")
+  out <- capture.output(envelope(fit, B = 10, refit = FALSE))
+  expect_false(any(grepl("Expected under", out)))
+})
+
+test_that("simulated differenced series follow the fitted model", {
+  set.seed(4)
+  pp <- list(c = 0.2, phi = 0.5, theta = numeric(0), Phi = numeric(0), Theta = numeric(0),
+             sigma = 1, gamma = 1, nu = NULL)
+  spec <- list(p = 1, d = 0, q = 0, P = 0, D = 0, Q = 0, s = 1, dist = "normal")
+  w <- .simulate_differenced(pp, spec, 5000)
+  # sd of the mean of this AR(1) is about 0.028
+  expect_lt(abs(mean(w) - 0.2 / 0.5), 0.12)
+  expect_equal(stats::acf(w, plot = FALSE)$acf[2], 0.5, tolerance = 0.05)
+})

@@ -21,6 +21,13 @@
   H0: gamma = 1.
 * `diagnostics()` and `envelope()` support seasonal models; for these the
   residual ACF, PACF and Ljung-Box test cover two seasonal periods.
+* `envelope()` gains `refit = TRUE` (the default): each replication simulates a
+  series from the fitted model and re-estimates it, so the envelope accounts
+  for parameter estimation. Without it, the smallest distances of a correct
+  Skewed Laplace fit fall below the envelope, because its maximum likelihood
+  fit pulls several residuals to zero. `refit = FALSE` keeps the faster
+  envelope based on simulated innovations.
+* Sergio Mercado Londoño joins as a contributor.
 
 ## Changes in parameterization
 
