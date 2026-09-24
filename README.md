@@ -78,10 +78,10 @@ Below is an evaluation of the Skew-Normal, Skewed Student-t, and Skewed Laplace 
 The `diagnostics()` function provides additional analysis including ACF/PACF of Randomized Quantile Residuals (RQR), and the `summary()` method handles analytical Fisher Information matrix standard errors.
 
 ### Out-of-Sample Forecasting
-Comparison between traditional Gaussian ARIMA (Mean) and the Modal ARIMA (Mode) utilizing different members of the SKD family. The package computes both **Asymptotic** prediction intervals for standard series, and **Parametric Bootstrap** simulated prediction intervals for greater coverage in small sample settings.
+Comparison between the traditional Gaussian ARIMA mean, the Modal SARIMA joint modal trajectory, and its marginal mode. The package computes both **Asymptotic** prediction intervals (here, exact, from the convolution of the fitted SKD densities) and **Parametric Bootstrap** simulated prediction intervals for greater coverage in small-sample settings. A seasonal component for the ten-year lynx cycle (Modal SARIMA$(4,0,2)(1,0,0)_{10}$) improves on the non-seasonal fit; see the [Modal SARIMA paper](https://github.com/chedgala/modal-sarima) for the full analysis.
 
 <p align="center">
-  <img src="man/figures/forecast_lynx_premium.png" width="80%">
+  <img src="man/figures/lynx_forecast_sarima.png" width="80%">
 </p>
 
 ## Quick Start Tutorial
