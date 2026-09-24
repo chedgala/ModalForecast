@@ -28,7 +28,6 @@
 #' @export
 #'
 #' @examples
-#' \donttest{
 #' library(forecast)
 #' 
 #' # 1. Load Empirical Data (Lynx)
@@ -42,22 +41,21 @@
 #' c(Normal = AIC(fit_n), Student = AIC(fit_t), Laplace = AIC(fit_l))
 #'
 #' # 3. Auto Model Selection globally on the winning distribution (Skew-Normal)
-#' fit_auto <- auto.modal.arima(y, d=0, max.p=5, max.q=5, dist="normal")
+#' fit_auto <- auto.modal.arima(y, d=0, max.p=2, max.q=2, dist="normal")
 #'
 #' # 4. Summary & Inferences
 #' summary(fit_auto)
 #'
 #' # 5. Run residual diagnostics and Envelopes
 #' diagnostics(fit_auto)
-#' envelope(fit_auto, B=100)
+#' envelope(fit_auto, B=10)
 #'
 #' # 6. Produce forecasts with multiple prediction bands (alphas)
-#' pred <- forecast(fit_auto, h=10, level = c(80, 95, 99))
+#' pred <- forecast(fit_auto, h=5, level = c(80, 95))
 #'
 #' # 7. Native integration with 'forecast' ecosystem
 #' autoplot(pred)    
-#' accuracy(pred)    
-#' }
+#' accuracy(pred)
 auto.modal.arima <- function(y, d = NA, max.p = 5, max.q = 5,
                               ic = c("aic", "bic"),
                               dist = c("normal", "t", "laplace")) {
