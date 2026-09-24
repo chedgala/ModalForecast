@@ -1,20 +1,27 @@
 ## Submission summary
-This is a new submission. ModalForecast implements modal ARIMA models under the SKD family of distributions.
+
+This is an update of ModalForecast from version 0.1.0 to 0.2.0. It adds seasonal
+(SARIMA) models, marginal modal forecasts and exact prediction intervals, and
+fixes several bugs in the estimation of the Skewed Student-t and Skewed Laplace
+models (see NEWS.md). The package title and description were updated to
+mention the seasonal models, and two contributors were added.
 
 ## Test environments
+
 * local Windows 11 x64, R 4.5.0
-* win-builder (devel and release)
+* win-builder, R-devel (2026-09-21 r90579 ucrt)
+* win-builder, R-release (R 4.6.1)
 
 ## R CMD check results
-There were no ERRORs or WARNINGs.
 
-There were no NOTEs.
+0 errors | 0 warnings | 1 note
 
-## Resubmission
-This is a resubmission. In this version I have addressed the following points raised by the CRAN maintainer:
-* Explained the acronym ARIMA in the Description text.
-* Added the reference describing the methods in the Description field (Galarza et al., 2017) using the requested format `<doi:...>`.
-* Unwrapped all examples by removing `\donttest{}` and simplified the examples (reduced maximum model dimensions and bootstrap iterations) so they can be executed quickly during testing.
-* Removed the `LICENSE` file and its reference from the `DESCRIPTION` file, keeping only `License: GPL-3`, as there are no additional restrictions.
-* Fixed previous NOTEs regarding non-standard files (`Rplots.pdf`, `submit_mock.R`) at the top level.
-* The possibly misspelled word "SKD" in the DESCRIPTION file is an acronym for "Skewed Distribution" and is spelled correctly.
+* checking CRAN incoming feasibility ... NOTE
+  Possibly misspelled words in DESCRIPTION: SARIMA
+
+  "SARIMA" is the standard acronym for seasonal ARIMA and is spelled
+  correctly; the Description introduces it as "seasonal ARIMA (SARIMA)".
+
+## Reverse dependencies
+
+There are no reverse dependencies.
