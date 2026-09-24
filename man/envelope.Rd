@@ -3,7 +3,7 @@
 \name{envelope}
 \alias{envelope}
 \alias{envelope.modal_arima}
-\title{Simulation Envelope Diagnostics for Modal ARIMA Models}
+\title{Simulation Envelope Diagnostics for Modal ARIMA and SARIMA Models}
 \usage{
 envelope(object, ...)
 
@@ -20,6 +20,10 @@ envelope(object, ...)
 A ggplot object (invisibly) and draws the envelope plot.
 }
 \description{
-Constructs simulation envelopes based on the theoretical distance
-distributions from the SKD family (Galarza et al., 2017).
+Constructs simulation envelopes for the distances
+\eqn{\rho_p(\epsilon_t/\sigma)} of the modal residuals, based on their
+theoretical distribution under the SKD family (Galarza et al., 2017):
+twice the distance follows the half-normal, half-t or standard exponential
+distribution for the Skew-Normal, Skewed Student-t and Skewed Laplace
+members, respectively.
 }
